@@ -110,7 +110,7 @@ def index():
     exam_list = []
 
     for exam in exams:
-        start = datetime.strptime(exam['start_time'], "%Y-%m-%d %H:%M:%S")
+        start = datetime.strptime(exam['start_time'], "%Y-%m-%dT%H:%M")
         end = start + timedelta(minutes=exam['duration'])
         now = datetime.now()
 

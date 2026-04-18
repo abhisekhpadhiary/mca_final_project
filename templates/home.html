@@ -71,54 +71,82 @@ body {
     background: transparent;
 }
 
-/* STATS */
-.stats {
+/* MAIN LAYOUT */
+.main-content {
     display: flex;
-    justify-content: center;
     gap: 40px;
-    margin: 40px 0;
+    max-width: 1100px;
+    margin: 40px auto;
+    align-items: flex-start;
 }
 
-.stat h2 {
-    color: #7c3aed;
+/* LEFT */
+.left-section {
+    flex: 1.5;
+}
+
+/* RIGHT */
+.right-section {
+    flex: 1;
 }
 
 /* NOTICE BOARD */
 .notice-board {
-    max-width: 800px;
-    margin: 40px auto;
+    background: #111827;   /* same as navbar */
+    color: #fff;
+    border-radius: 10px;
     padding: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
 
 .notice-header {
     background: #1f4f85;
+    color: #fff;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 6px;
     margin-bottom: 20px;
 }
 
 .notice-item {
     margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2a2f3a;
+}
+
+.notice-item h3 {
+    margin: 5px 0;
+    color: #e5e7eb;
+}
+
+.notice-item p {
+    margin: 2px 0;
+    color: #9ca3af;
 }
 
 /* BADGES */
 .badge {
     padding: 4px 10px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 12px;
 }
 
-.live {
-    background: red;
+.live { background: red; color: white; }
+.upcoming { background: #facc15; }
+.result { background: #60a5fa; }
+
+/* RIGHT FEATURES */
+.right-section h2 {
+    margin-bottom: 20px;
 }
 
-.upcoming {
-    background: #eab308;
-    color: black;
+.feature {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
-.result {
-    background: #3b82f6;
+.icon {
+    font-size: 26px;
 }
 
 /* FOOTER */
@@ -135,10 +163,7 @@ body {
 <!-- NAVBAR -->
 <div class="navbar">
     <div class="logo">Proctor<span>Exam</span></div>
-    <div class="nav-links">
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-    </div>
+    
 </div>
 
 <!-- HERO -->
@@ -150,60 +175,87 @@ body {
     <a href="/login"><button class="btn btn-outline">Login</button></a>
 </div>
 
-<!-- STATS -->
-<div class="stats">
-    <div class="stat"><h2>1000+</h2><p>Students</p></div>
-    <div class="stat"><h2>200+</h2><p>Exams</p></div>
-    <div class="stat"><h2>95%</h2><p>Accuracy</p></div>
-    <div class="stat"><h2>24/7</h2><p>Availability</p></div>
-</div>
+<!-- MAIN CONTENT -->
+<div class="main-content">
 
-<!-- NOTICE BOARD -->
-<div class="notice-board">
+    <!-- LEFT: NOTICE BOARD -->
+    <div class="left-section">
+        <div class="notice-board">
 
-    <h2>Notice Board</h2>
+            <h2>Notice board</h2>
 
-    <div class="notice-header">
-        <span style="color:yellow;">●</span> Latest updates & exams
-    </div>
+            <div class="notice-header">
+                ● Latest updates & upcoming exams
+            </div>
 
-    {% if exams and exams|length > 0 %}
+            {% if exams and exams|length > 0 %}
 
-        {% for exam in exams %}
-        <div class="notice-item">
+                {% for exam in exams %}
+                <div class="notice-item">
 
-            <!-- STATUS -->
-            {% if exam.status == "Live" %}
-                <span class="badge live">Live</span>
-            {% elif exam.status == "Upcoming" %}
-                <span class="badge upcoming">Upcoming</span>
+                    <!-- STATUS -->
+                    {% if exam.status == "Live" %}
+                        <span class="badge live">Live</span>
+                    {% elif exam.status == "Upcoming" %}
+                        <span class="badge upcoming">Upcoming</span>
+                    {% else %}
+                        <span class="badge result">Completed</span>
+                    {% endif %}
+
+                    <!-- TITLE -->
+                    <h3>{{ exam.name }}</h3>
+
+                    <!-- DETAILS -->
+                    <p>
+                        👨‍🏫 {{ exam.teacher }}
+                    </p>
+
+                    <p style="color:#555;">
+                        ⏰ {{ exam.start }}
+                    </p>
+
+                </div>
+                {% endfor %}
+
             {% else %}
-                <span class="badge result">Result</span>
+
+                <p>No updates available</p>
+
             {% endif %}
 
-            <!-- TITLE -->
-            <h3>{{ exam.name }}</h3>
-
-            <!-- DETAILS -->
-            <p style="color:#aaa;">
-                👨‍🏫 {{ exam.teacher }}
-            </p>
-
-            <p style="color:#888;">
-                ⏰ {{ exam.start }}
-            </p>
-
         </div>
-        {% endfor %}
+    </div>
 
-    {% else %}
+    <!-- RIGHT: FEATURES -->
+    <div class="right-section">
 
-        <div style="text-align:center;">
-            <h3>No exams available</h3>
-            <p style="color:#aaa;">New updates will appear here soon.</p>
+        <h2>Why use ProctorExam?</h2>
+
+        <div class="feature">
+            <div class="icon">📝</div>
+            <div>
+                <h3>Easy exam creation</h3>
+                <p>Teachers can build MCQ, fill-in-the-blank, or mixed exams in minutes.</p>
+            </div>
         </div>
 
-    {% endif %}
+        <div class="feature">
+            <div class="icon">🔒</div>
+            <div>
+                <h3>Secure & proctored</h3>
+                <p>Anti-cheating measures and time-bound sessions ensure exam integrity.</p>
+            </div>
+        </div>
+
+        <div class="feature">
+            <div class="icon">📊</div>
+            <div>
+                <h3>Instant results & analytics</h3>
+                <p>Auto-grading and performance reports available instantly.</p>
+            </div>
+        </div>
+
+    </div>
 
 </div>
 
