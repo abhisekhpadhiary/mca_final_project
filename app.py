@@ -94,7 +94,44 @@ def student_required(f):
 
 @app.route('/')
 def index():
-    return redirect(url_for('dashboard')) if 'user_id' in session else redirect(url_for('login'))
+    conn = get_db()
+
+    exams = conn.execute("""
+        SELECT e.id, e.exam_name, e.start_time, e.duration,
+               u.username as teacher_name
+        FROM exams e
+        JOIN users u ON e.examiner_id = u.id
+        ORDER BY e.start_time DESC
+        LIMIT 5
+    """).fetchall()
+
+    from datetime import datetime, timedelta
+
+    exam_list = []
+
+    for exam in exams:
+        start = datetime.strptime(exam['start_time'], "%Y-%m-%d %H:%M:%S")
+        end = start + timedelta(minutes=exam['duration'])
+        now = datetime.now()
+
+        if start <= now <= end:
+            status = "Live"
+        elif start > now:
+            status = "Upcoming"
+        else:
+            status = "Result"
+
+        exam_list.append({
+            "name": exam["exam_name"],
+            "teacher": exam["teacher_name"],
+            "start": exam["start_time"],
+            "status": status
+        })
+
+    conn.close()
+
+    return render_template('home.html', exams=exam_list)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

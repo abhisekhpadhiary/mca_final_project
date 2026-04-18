@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ProctorExam</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0b1220;
+    color: #fff;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 40px;
+    background: #111827;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+.logo span {
+    color: #7c3aed;
+}
+
+.nav-links a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #ccc;
+}
+
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 80px 20px 40px;
+}
+
+.hero h1 {
+    font-size: 40px;
+}
+.hero span {
+    color: #7c3aed;
+}
+
+.hero p {
+    color: #aaa;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 12px 20px;
+    margin: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #7c3aed;
+    color: white;
+    border: none;
+}
+
+.btn-outline {
+    border: 1px solid #7c3aed;
+    color: #7c3aed;
+    background: transparent;
+}
+
+/* STATS */
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 40px 0;
+}
+
+.stat h2 {
+    color: #7c3aed;
+}
+
+/* NOTICE BOARD */
+.notice-board {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.notice-header {
+    background: #1f4f85;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.notice-item {
+    margin-bottom: 20px;
+}
+
+/* BADGES */
+.badge {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.live {
+    background: red;
+}
+
+.upcoming {
+    background: #eab308;
+    color: black;
+}
+
+.result {
+    background: #3b82f6;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    padding: 40px;
+    background: #111827;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">Proctor<span>Exam</span></div>
+    <div class="nav-links">
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <h1>Secure & Smart <span>Online Exams</span></h1>
+    <p>Conduct, monitor, and evaluate exams with full proctoring support.</p>
+
+    <a href="/register"><button class="btn btn-primary">Get Started</button></a>
+    <a href="/login"><button class="btn btn-outline">Login</button></a>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+    <div class="stat"><h2>1000+</h2><p>Students</p></div>
+    <div class="stat"><h2>200+</h2><p>Exams</p></div>
+    <div class="stat"><h2>95%</h2><p>Accuracy</p></div>
+    <div class="stat"><h2>24/7</h2><p>Availability</p></div>
+</div>
+
+<!-- NOTICE BOARD -->
+<div class="notice-board">
+
+    <h2>Notice Board</h2>
+
+    <div class="notice-header">
+        <span style="color:yellow;">●</span> Latest updates & exams
+    </div>
+
+    {% if exams and exams|length > 0 %}
+
+        {% for exam in exams %}
+        <div class="notice-item">
+
+            <!-- STATUS -->
+            {% if exam.status == "Live" %}
+                <span class="badge live">Live</span>
+            {% elif exam.status == "Upcoming" %}
+                <span class="badge upcoming">Upcoming</span>
+            {% else %}
+                <span class="badge result">Result</span>
+            {% endif %}
+
+            <!-- TITLE -->
+            <h3>{{ exam.name }}</h3>
+
+            <!-- DETAILS -->
+            <p style="color:#aaa;">
+                👨‍🏫 {{ exam.teacher }}
+            </p>
+
+            <p style="color:#888;">
+                ⏰ {{ exam.start }}
+            </p>
+
+        </div>
+        {% endfor %}
+
+    {% else %}
+
+        <div style="text-align:center;">
+            <h3>No exams available</h3>
+            <p style="color:#aaa;">New updates will appear here soon.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <h2>Ready to take your exam?</h2>
+    <a href="/login"><button class="btn btn-primary">Login</button></a>
+    <a href="/register"><button class="btn btn-outline">Register</button></a>
+</div>
+
+</body>
+</html>
