@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ exam.exam_name }} — Results{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div style="display:flex; align-items:center; justify-content: space-between; gap:1rem; margin-bottom:2rem; flex-wrap:wrap;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline btn-sm">← Back</a>
+        <div>
+          <h2 style="font-size:20px; font-weight:600;">{{ exam.exam_name }}</h2>
+          <p style="font-size:13px; color:var(--text2);">{{ exam.start_time.replace('T',' ') }} · {{ exam.duration }} min</p>
+        </div>
+    </div>
+
+    <div class="publish-action">
+        {% if exam.results_published == 0 %}
+          <form action="{{ url_for('publish_result', exam_id=exam.id) }}" method="POST">
+            <button type="submit" class="btn btn-success" onclick="return confirm('Publish results? Students will be able to see their scores immediately.')">
+              📢 Publish Results
+            </button>
+          </form>
+        {% else %}
+          <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;">✅ Results Published</span>
+        {% endif %}
+    </div>
+  </div>
+
+  {% if results %}
+  <div class="stats-grid" style="margin-bottom:2rem;">
+    <div class="stat-card">
+      <div class="label">Total Students Joined</div>
+      <div class="value">{{ results|length }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg Score</div>
+      <div class="value" style="color:var(--accent2);">
+        {% if results|length > 0 %}
+          {{ "%.1f"|format(results|sum(attribute='score') / results|length) }}
+          / {{ results[0].total_questions if results[0].total_questions > 0 else '?' }}
+        {% else %}
+          0.0
+        {% endif %}
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Top Score</div>
+      <div class="value" style="color:var(--success);">
+        {{ results|map(attribute='score')|max }} / {{ results[0].total_questions if results[0].total_questions > 0 else '?' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student</th>
+          <th>Email</th>
+          <th>Score</th>
+          <th>Percentage</th>
+          <th>Status</th>
+          <th>Submitted At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        {% set pct = r.percentage|int %}
+        <tr>
+          <td style="color:var(--text3);">{{ loop.index }}</td>
+          <td><strong>{{ r.username }}</strong></td>
+          <td style="color:var(--text2);">{{ r.email }}</td>
+          <td>{{ r.score }} / {{ r.total_questions }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="flex:1; background:var(--bg3); border-radius:4px; height:6px; min-width:80px;">
+                <div style="width:{{ pct }}%; background:{% if pct>=75 %}var(--success){% elif pct>=50 %}var(--warning){% else %}var(--danger){% endif %}; height:100%; border-radius:4px;"></div>
+              </div>
+              <span style="font-size:13px;">{{ pct }}%</span>
+            </div>
+          </td>
+          <td>
+            {% if r.status == 'submitted' %}
+              {% if pct >= 75 %}
+                <span class="badge badge-success">Pass</span>
+              {% elif pct >= 50 %}
+                <span class="badge badge-warning">Average</span>
+              {% else %}
+                <span class="badge badge-danger">Fail</span>
+              {% endif %}
+            {% else %}
+              <span class="badge badge-accent">In Progress</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--text3); font-size:13px;">
+            {{ r.submitted_at if r.submitted_at else 'Active Session' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:40px;">🎓</div>
+    <p>No students have joined or submitted this exam yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

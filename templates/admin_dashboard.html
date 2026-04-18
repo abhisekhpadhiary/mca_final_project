@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Master Admin{% endblock %}
+{% block content %}
+<style>
+  /* Styling to make the card look clickable */
+  .clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    border: 1px solid transparent;
+  }
+  .clickable-card:hover {
+    border-color: var(--accent1);
+    transform: translateY(-2px);
+  }
+  .clickable-card.active {
+    background: var(--bg3);
+    border-color: var(--accent1);
+  }
+  
+  /* Styling for the examiner name link */
+  .teacher-link {
+    color: var(--accent1);
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .teacher-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="page">
+    <h2>Master Admin Control Panel</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card clickable-card" id="examiner-stats-card" onclick="toggleExaminerList()">
+            <div class="label">Total Examiners for {{ session['college'] }} (Click to View)</div>
+            <div class="value" style="color:var(--accent2);">{{ teachers|length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Active Exams</div>
+            <div class="value">{{ stats|length }}</div>
+        </div>
+    </div>
+
+    <div id="examiner-details-section" class="table-wrap" style="display: none; margin-top: 20px; border: 1px solid var(--bg3); animation: fadeIn 0.3s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--bg3);">
+            <h3 style="margin:0;">Registered Examiners List</h3>
+            <button onclick="toggleExaminerList()" class="btn btn-outline btn-sm">Close List</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Teacher Name</th>
+                    <th>Institution</th>
+                    <th>Email Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('teacher_details', teacher_id=teacher.id) }}" class="teacher-link">
+                           {{ teacher.username }}
+                        </a>
+                    </td>
+                    <td style="color:var(--text2);">{{ teacher.college_name }}</td>
+                    <td>{{ teacher.email }}</td>
+                    <td><span class="badge badge-accent">{{ teacher.exam_count }} Exams</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align:center; padding:20px;">No examiners registered under your college yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px; padding:20px; background:var(--bg2);">
+        <h3>Create New Examiner for {{ session['college'] }}</h3>
+        <form action="{{ url_for('create_examiner') }}" method="POST" style="display:flex; gap:10px; margin-top:10px; flex-wrap: wrap;">
+            <input type="text" name="username" placeholder="Teacher Name" required class="btn-outline" style="padding:10px; flex:1; min-width:150px;">
+            <input type="email" name="email" placeholder="Email Address" required class="btn-outline" style="padding:10px; flex:1; min-width:200px;">
+            <input type="password" name="password" placeholder="Set Password" required class="btn-outline" style="padding:10px; flex:1; min-width:150px;">
+            <button type="submit" class="btn btn-primary" style="padding: 0 20px;">Create Account</button>
+        </form>
+        <p style="font-size: 12px; color: var(--text3); margin-top: 10px;">
+            * New accounts are automatically linked to your institution: <strong>{{ session['college'] }}</strong>.
+        </p>
+    </div>
+
+    <div class="table-wrap" style="margin-top:30px;">
+        <h3>Performance Overview</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Conducted By</th>
+                    <th>Students Joined</th>
+                    <th>Passed (≥50%)</th>
+                    <th>Failed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in stats %}
+                <tr>
+                    <td>{{ item.exam_name }}</td>
+                    <td>{{ item.teacher }}</td>
+                    <td>{{ item.student_count }}</td>
+                    <td style="color:var(--success);">{{ item.pass_count }}</td>
+                    <td style="color:var(--danger);">{{ item.student_count - item.pass_count }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:20px;">No exam data available for this college.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+/**
+ * Toggles the visibility of the examiner details table
+ */
+function toggleExaminerList() {
+    const section = document.getElementById('examiner-details-section');
+    const card = document.getElementById('examiner-stats-card');
+    
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        card.classList.add('active');
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        section.style.display = 'none';
+        card.classList.remove('active');
+    }
+}
+</script>
+{% endblock %}

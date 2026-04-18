@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Examiner Details — Master Admin{% endblock %}
+{% block content %}
+<div class="page">
+    <div style="margin-bottom: 20px;">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-sm">← Back to Admin Control</a>
+    </div>
+
+    <div class="table-wrap" style="padding: 30px;">
+        <h2 style="border-bottom: 2px solid var(--accent1); padding-bottom: 10px;">Examiner Profile</h2>
+        
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+            <div><strong>Full Name:</strong> {{ teacher.username }}</div>
+            <div><strong>Email ID:</strong> {{ teacher.email }}</div>
+            <div>
+                <strong>Login Password:</strong> 
+                <span style="color:var(--text3); font-style: italic;">******** (Encrypted for Security)</span>
+            </div>
+            <div><strong>Total Exams Conducted:</strong> {{ exams|length }}</div>
+        </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top: 30px;">
+        <h3>Exam History for {{ teacher.username }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Date Scheduled</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>
+                        <strong>{{ exam.exam_name }}</strong>
+                    </td>
+                    <td>{{ exam.start_time.replace('T', ' ') }}</td>
+                    <td>{{ exam.duration }} mins</td>
+                    <td>
+                        <div style="display: flex; gap: 10px;">
+                            <a href="{{ url_for('exam_detail_results', exam_id=exam.id) }}" class="btn btn-primary btn-sm">
+                                See Result
+                            </a>
+
+                            <a href="{{ url_for('view_exam_questions', exam_id=exam.id) }}" class="btn btn-outline btn-sm">
+                                View Questions
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" style="text-align:center; padding:20px;">No exams conducted yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

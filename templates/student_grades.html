@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}My Grades{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-header">
+    <h2>My Report Card</h2>
+    <p>Your submitted exam results are shown below.</p>
+  </div>
+
+  {% if waiting and waiting > 0 %}
+  <div class="flash flash-info" style="margin-bottom:1.5rem; display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 18px;">ℹ</span> 
+    <span>You have <strong>{{ waiting }}</strong> exam result(s) pending. They will appear here once published by the examiner.</span>
+  </div>
+  {% endif %}
+
+  {% if results %}
+  <div style="display:flex; flex-direction:column; gap:1rem;">
+    {% for r in results %}
+    {% set pct = r.percentage|int %}
+    <div class="card" style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+
+      <div class="score-circle" style="border-color:{% if pct>=75 %}var(--success){% elif pct>=50 %}var(--warning){% else %}var(--danger){% endif %}; flex-shrink:0;">
+        <div class="num">{{ r.score }}</div>
+        <div class="denom">/ {{ r.total_questions }}</div>
+      </div>
+
+      <div style="flex:1; min-width:200px;">
+        <h3 style="font-size:17px; font-weight:600; margin-bottom:4px;">{{ r.exam_name }}</h3>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:8px;">
+          {{ r.start_time.replace('T',' ') }} &nbsp;·&nbsp; {{ r.duration }} min
+        </p>
+
+        <div style="background:var(--bg3); border-radius:6px; height:8px; margin-bottom:8px;">
+          <div style="width:{{ pct }}%; background:{% if pct>=75 %}var(--success){% elif pct>=50 %}var(--warning){% else %}var(--danger){% endif %}; height:100%; border-radius:6px; transition:width 0.6s ease;"></div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:20px; font-weight:700; color:{% if pct>=75 %}var(--success){% elif pct>=50 %}var(--warning){% else %}var(--danger){% endif %};">
+            {{ pct }}%
+          </span>
+          {% if pct >= 75 %}
+            <span class="badge badge-success">✓ Pass</span>
+          {% elif pct >= 50 %}
+            <span class="badge badge-warning">Average</span>
+          {% else %}
+            <span class="badge badge-danger">✕ Fail</span>
+          {% endif %}
+          <span style="font-size:12px; color:var(--text3);">Submitted: {{ r.submitted_at }}</span>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:40px;">📝</div>
+    <p>No published results available yet.</p>
+    <a href="{{ url_for('join_exam') }}" class="btn btn-primary" style="margin-top:1rem;">Join an Exam</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Join Exam{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:480px;">
+  <div class="page-header">
+    <h2>Join Exam</h2>
+    <p>Enter the exam name and password provided by your examiner.</p>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label>Exam Name</label>
+        <input type="text" name="exam_name" placeholder="e.g. MCA_Sem3_DBMS" required autofocus />
+      </div>
+      <div class="form-group">
+        <label>Exam Password</label>
+        <input type="text" name="password" placeholder="8-character code" required
+               style="font-family:monospace; letter-spacing:0.1em;" />
+      </div>
+
+      <div style="background:var(--warning-dim); border:1px solid rgba(245,158,11,0.2);
+                  border-radius:var(--radius); padding:12px 14px; margin-bottom:1.25rem; font-size:13px; color:var(--warning);">
+        ⚠️ Entry is allowed only within <strong>±3 minutes</strong> of the exam start time.
+        The exam will auto-submit if you switch tabs or exit fullscreen.
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center;">
+          Enter Exam →
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

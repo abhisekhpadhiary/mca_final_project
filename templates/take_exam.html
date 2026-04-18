@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}{{ exam.exam_name }}{% endblock %}
+
+{% block navbar %}
+<nav class="navbar nptel-nav">
+  <div class="navbar-left">
+    <span class="brand">Proctor<span>Exam</span></span>
+    <span class="exam-title-tag" style="margin-left:15px; font-size:14px; color:var(--text2);">{{ exam.exam_name }}</span>
+  </div>
+  <div class="navbar-right">
+    <div class="timer-box" style="margin-right:20px; display:flex; align-items:center; gap:8px;">
+      <span style="font-size:12px; color:var(--text3);">TIME LEFT:</span>
+      <span id="timer-display" class="time-left" style="font-weight:700; font-family:monospace; font-size:18px;">--:--</span>
+    </div>
+    
+    <div class="profile-pill" style="display: flex; align-items: center; gap: 10px; background: var(--bg3); padding: 4px 12px 4px 6px; border-radius: 25px; border: 1px solid var(--border);">
+      <div class="avatar" style="width: 28px; height: 28px; overflow: hidden; border-radius: 50%;">
+        {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
+          <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" 
+               style="width: 100%; height: 100%; object-fit: cover;">
+        {% else %}
+          <div style="width: 100%; height: 100%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px;">
+            {{ session.username[0].upper() }}
+          </div>
+        {% endif %}
+      </div>
+      <span class="username" style="font-size: 13px; font-weight: 500; color: var(--text);">{{ session.username }}</span>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div id="exam-lobby" class="page" style="display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center;">
+    <div style="background: var(--bg2); padding: 3rem; border-radius: var(--radius-lg); border: 1px solid var(--border); max-width: 500px; width: 100%; box-shadow: var(--shadow);">
+        <div style="font-size: 50px; margin-bottom: 1rem;">⏳</div>
+        <h2 style="margin-bottom: 0.5rem; font-size: 24px;">Exam Starts Soon</h2>
+        
+        <h3 style="color: var(--accent2); font-size: 18px; margin-top: 10px;">{{ exam.subject }}</h3>
+        <p style="color: var(--text3); font-style: italic; font-size: 13px; margin-bottom: 20px;">
+            {{ exam.description if exam.description else 'No description provided.' }}
+        </p>
+        
+        <div id="lobby-timer" style="font-size: 42px; font-weight: 800; font-family: monospace; color: var(--accent2); background: var(--bg3); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--accent-dim); letter-spacing: 2px;">
+            00:00:00
+        </div>
+        
+        <p style="font-size: 12px; color: var(--text3); margin-top: 2rem; line-height: 1.4;">
+            <strong>Proctoring is ACTIVE.</strong><br>
+            The exam window will open automatically. Do not refresh.
+        </p>
+    </div>
+</div>
+
+<div id="active-exam-ui" style="display: none; height:100vh; overflow:hidden;">
+
+    <div class="proctor-bar">
+      🔴 PROCTORED MODE ACTIVE — Tab switching or exiting fullscreen will trigger auto-submission.
+    </div>
+
+    <div class="nptel-container" style="display:flex; height:calc(100vh - 110px); overflow:hidden;">
+
+      <!-- LEFT: QUESTIONS -->
+      <div class="question-section" style="flex:2; display:flex; flex-direction:column; overflow:hidden;">
+
+        <!-- SCROLLABLE QUESTIONS -->
+        <div id="questions-container" style="flex:1; overflow-y:auto; padding-right:10px;">
+          {% for q in questions %}
+          {% set question_index = loop.index0 %}
+          <div class="nptel-q-block" id="q-block-{{ question_index }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
+            
+            <div class="q-header">
+              <span class="q-num">Question {{ loop.index }}</span>
+            </div>
+
+            <div class="q-body">
+              <p class="q-text">{{ q.text }}</p>
+
+              <div class="options-grid">
+                {% for opt in q.options %}
+                <label class="nptel-opt">
+                  <input type="radio"
+                         name="q{{ question_index }}"
+                         value="{{ opt[1]|lower }}"
+                         onchange="ProctorExam.updatePalette({{ question_index }}, 'answered')">
+
+                  <span class="opt-letter">({{ opt[0] }})</span>
+                  <span class="opt-text">{{ opt[3:] }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- FIXED BUTTON BAR -->
+        <div class="nptel-actions"
+             style="flex-shrink:0; background:var(--bg2); padding:12px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:space-between;">
+          
+          <button class="btn btn-outline" onclick="ProctorExam.prevQuestion()">← Previous</button>
+          <button class="btn btn-warning" onclick="ProctorExam.markForReview()">Mark for Review</button>
+          <button class="btn btn-outline" onclick="ProctorExam.clearResponse()">Clear Response</button>
+          <button class="btn btn-primary" onclick="ProctorExam.nextQuestion()">Save & Next →</button>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: PALETTE -->
+      <div class="palette-section" style="flex:1; overflow-y:auto; padding-left:15px;">
+
+        <div class="palette-header">Question Palette</div>
+
+        <div class="palette-grid">
+          {% for q in questions %}
+          <div class="palette-item status-not-visited"
+               id="pal-{{ loop.index0 }}"
+               onclick="ProctorExam.goToQuestion({{ loop.index0 }})">
+            {{ loop.index }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="palette-legend">
+          <div class="leg-item"><span class="box grey"></span> Not Visited</div>
+          <div class="leg-item"><span class="box red"></span> Not Answered</div>
+          <div class="leg-item"><span class="box green"></span> Answered</div>
+          <div class="leg-item"><span class="box violet"></span> Review</div>
+        </div>
+
+        <div class="submit-area">
+          <button id="final-submit-btn"
+                  onclick="ProctorExam.manualSubmit()"
+                  class="btn btn-success btn-full"
+                  disabled>
+            Final Submit (Locked)
+          </button>
+
+          <p id="submit-lock-timer">
+            Unlocks in last 2 minutes.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/proctor.js') }}"></script>
+<script>
+  /**
+   * Synchronized Clock & Submission Security Logic
+   */
+  const startTime = new Date("{{ start_time }}").getTime();
+  const endTime = new Date("{{ end_time }}").getTime();
+  
+  const lobbyDisplay = document.getElementById('exam-lobby');
+  const examDisplay = document.getElementById('active-exam-ui');
+  const lobbyTimer = document.getElementById('lobby-timer');
+  const examTimer = document.getElementById('timer-display');
+  
+  const submitBtn = document.getElementById('final-submit-btn');
+  const lockMsg = document.getElementById('submit-lock-timer');
+
+  function updateGlobalClocks() {
+    const now = new Date().getTime();
+
+    if (now < startTime) {
+      // STATE: Waiting Room
+      lobbyDisplay.style.display = 'flex';
+      examDisplay.style.display = 'none';
+      
+      const diff = startTime - now;
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      
+      lobbyTimer.innerHTML = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      
+    } else if (now >= startTime && now < endTime) {
+      // STATE: Exam In Progress
+      lobbyDisplay.style.display = 'none';
+      examDisplay.style.display = 'block';
+      
+      const diff = endTime - now;
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      
+      examTimer.innerHTML = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      
+      // ─── FINAL SUBMIT SECURITY WINDOW (2 MINUTES) ───
+      // Unlocks button only when 2 minutes remain
+      if (diff <= 120000) { 
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+        submitBtn.style.cursor = "pointer";
+        submitBtn.innerHTML = "Final Submit Now →";
+        lockMsg.innerHTML = "Submission window is now OPEN.";
+        lockMsg.style.color = "var(--success)";
+        examTimer.style.color = 'var(--danger)';
+      } else {
+        const waitMins = Math.ceil((diff - 120000) / 60000);
+        submitBtn.disabled = true;
+        lockMsg.innerHTML = `Submit unlocks in ${waitMins} min.`;
+      }
+      
+    } else {
+      // STATE: Exam Window Expired
+      examTimer.innerHTML = "00:00";
+      ProctorExam.manualSubmit(); // Trigger automatic submission
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Init core proctoring scripts
+    ProctorExam.init({{ exam.id }}, '{{ end_time }}', '{{ start_time }}');
+    
+    // Start synchronized clock interval
+    setInterval(updateGlobalClocks, 1000);
+    updateGlobalClocks();
+  });
+</script>
+{% endblock %}

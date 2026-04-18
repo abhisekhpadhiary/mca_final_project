@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Change Profile Picture{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<div class="modal-overlay">
+  <div class="profile-modal">
+    
+    <div class="modal-header">
+      <a href="{{ url_for('dashboard') }}" class="close-btn">✕</a>
+      <h3>Change profile picture</h3>
+      <div style="width: 24px;"></div> 
+    </div>
+
+    <div class="modal-body">
+      <div id="crop-wrapper" class="crop-container">
+        <img id="image-to-crop" style="max-width: 100%; display: none;">
+        
+        <div id="placeholder" class="placeholder-content">
+          <div class="current-view">
+             {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
+                <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="preview-circle">
+             {% else %}
+                <div class="preview-circle-text">{{ session.username[0].upper() }}</div>
+             {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <form id="upload-form" method="POST">
+        <input type="hidden" name="cropped_image" id="cropped-image-data">
+        
+        <label for="file-input" class="action-row">
+            <span class="icon">🖼️</span>
+            <span>Upload from device</span>
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+        </label>
+
+        <button type="submit" id="save-btn" class="save-btn-primary" disabled>Save Photo</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+  let cropper;
+  const fileInput = document.getElementById('file-input');
+  const imageToCrop = document.getElementById('image-to-crop');
+  const placeholder = document.getElementById('placeholder');
+  const croppedDataInput = document.getElementById('cropped-image-data');
+  const saveBtn = document.getElementById('save-btn');
+
+  // Handle file selection
+  fileInput.addEventListener('change', (e) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        // Switch from placeholder to cropping view
+        imageToCrop.src = event.target.result;
+        imageToCrop.style.display = 'block';
+        placeholder.style.display = 'none';
+        
+        if (cropper) cropper.destroy();
+
+        // Initialize Cropper
+        cropper = new Cropper(imageToCrop, {
+          aspectRatio: 1, 
+          viewMode: 1,
+          autoCropArea: 1,
+          responsive: true,
+          checkOrientation: false
+        });
+        
+        // Enable the save button once an image is loaded
+        saveBtn.disabled = false;
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  });
+
+  // Handle Save Photo click
+  document.getElementById('upload-form').addEventListener('submit', function(e) {
+    if (cropper) {
+      // Create a 300x300 canvas from the cropped selection
+      const canvas = cropper.getCroppedCanvas({
+        width: 300,
+        height: 300
+      });
+      
+      // Store the Base64 data in the hidden input for app.py to receive
+      croppedDataInput.value = canvas.toDataURL('image/jpeg', 0.8);
+    }
+  });
+</script>
+{% endblock %}

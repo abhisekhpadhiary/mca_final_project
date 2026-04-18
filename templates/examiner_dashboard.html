@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Examiner Dashboard{% endblock %}
+
+{% block content %}
+<style>
+  /* Logic for button highlights */
+  .filter-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent !important;
+  }
+  .filter-card.active {
+    border-color: var(--accent1) !important;
+    background: var(--bg3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+</style>
+
+<div class="page">
+  <div class="page-header">
+    <h2>Examiner Dashboard</h2>
+    <p>Welcome back, {{ session.username }}. Filter your exams by clicking the cards below.</p>
+  </div>
+
+  <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="stat-card filter-card" onclick="ExaminerDashboard.filterExams('live')" id="card-live">
+      <div class="label">Live Exams</div>
+      <div class="value" style="color:var(--success);">{{ live_exams|length }}</div>
+    </div>
+    <div class="stat-card filter-card" onclick="ExaminerDashboard.filterExams('upcoming')" id="card-upcoming">
+      <div class="label">Upcoming</div>
+      <div class="value" style="color:var(--accent2);">{{ upcoming_exams|length }}</div>
+    </div>
+    <div class="stat-card filter-card" onclick="ExaminerDashboard.filterExams('completed')" id="card-completed">
+      <div class="label">Total Exams (Completed)</div>
+      <div class="value">{{ completed_count }}</div>
+    </div>
+    
+    <div class="stat-card filter-card" onclick="window.location.href='{{ url_for('view_deleted_exams') }}'" id="card-deleted" style="border-color: rgba(239, 68, 68, 0.2) !important;">
+      <div class="label">Deleted Records</div>
+      <div class="value" style="color:var(--danger);">{{ deleted_count if deleted_count is defined else 0 }}</div>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h3 id="table-title" style="font-size:16px; font-weight:500;">Exams</h3>
+    <div style="display:flex; gap:10px;">
+        <a href="{{ url_for('schedule_exam') }}" class="btn btn-primary btn-sm">+ Schedule Exam</a>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Exam Name</th>
+          <th>Start Time</th>
+          <th>Duration</th>
+          <th>Password</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="exam-table-body">
+        {# 1. Live Exams #}
+        {% for exam in live_exams %}
+        <tr class="exam-row-main exam-item-row" data-status="live" onclick="ExaminerDashboard.toggleDetails('details-{{ exam.id }}')">
+          <td><div style="display:flex; align-items:center; gap:8px;"><span class="chevron" id="chevron-{{ exam.id }}">▸</span><strong>{{ exam.exam_name }}</strong></div></td>
+          <td>{{ exam.start_time.replace('T',' ') }}</td>
+          <td>{{ exam.duration }} min</td>
+          <td><code class="code-pill">{{ exam.random_password }}</code></td>
+          <td><span class="badge badge-success">● LIVE</span></td>
+        </tr>
+        <tr id="details-{{ exam.id }}" class="exam-details-row exam-item-row" data-status="live" style="display: none;">
+          <td colspan="5">
+            <div class="details-content">
+              <div class="details-left">
+                <div class="detail-item"><span class="detail-label">Subject</span><div class="detail-value">{{ exam.subject }}</div></div>
+                <div class="detail-item"><span class="detail-label">Description</span><div class="detail-value description-text">{{ exam.description }}</div></div>
+              </div>
+              <div class="details-right" style="display:flex; flex-direction:column; gap:8px;">
+                <a href="{{ url_for('exam_detail_results', exam_id=exam.id) }}" class="btn btn-outline btn-sm">Monitor Live</a>
+                <a href="{{ url_for('view_exam_questions', exam_id=exam.id) }}" class="btn btn-outline btn-sm">View Questions</a>
+                <form action="{{ url_for('delete_exam', exam_id=exam.id) }}" method="POST" onsubmit="return confirm('WARNING: Are you sure you want to cancel this LIVE exam?');">
+                  <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger); width:100%;">Cancel Exam</button>
+                </form>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+
+        {# 2. Upcoming Exams #}
+        {% for exam in upcoming_exams %}
+        <tr class="exam-row-main exam-item-row" data-status="upcoming" onclick="ExaminerDashboard.toggleDetails('details-{{ exam.id }}')">
+          <td><div style="display:flex; align-items:center; gap:8px;"><span class="chevron" id="chevron-{{ exam.id }}">▸</span><strong>{{ exam.exam_name }}</strong></div></td>
+          <td>{{ exam.start_time.replace('T',' ') }}</td>
+          <td>{{ exam.duration }} min</td>
+          <td><code class="code-pill">{{ exam.random_password }}</code></td>
+          <td><span class="badge badge-accent">Scheduled</span></td>
+        </tr>
+        <tr id="details-{{ exam.id }}" class="exam-details-row exam-item-row" data-status="upcoming" style="display: none;">
+          <td colspan="5">
+            <div class="details-content">
+              <div class="details-left">
+                <div class="detail-item"><span class="detail-label">Subject</span><div class="detail-value">{{ exam.subject }}</div></div>
+                <div class="detail-item"><span class="detail-label">Description</span><div class="detail-value description-text">{{ exam.description }}</div></div>
+              </div>
+              <div class="details-right" style="display:flex; flex-direction:column; gap:8px;">
+                <a href="{{ url_for('view_exam_questions', exam_id=exam.id) }}" class="btn btn-outline btn-sm">View Questions</a>
+                <form action="{{ url_for('delete_exam', exam_id=exam.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this scheduled exam?');">
+                  <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger); width:100%;">Cancel Exam</button>
+                </form>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+
+        {# 3. Completed Exams #}
+        {% for exam in completed_exams %}
+        <tr class="exam-row-main exam-item-row" data-status="completed" onclick="ExaminerDashboard.toggleDetails('details-{{ exam.id }}')">
+          <td><div style="display:flex; align-items:center; gap:8px;"><span class="chevron" id="chevron-{{ exam.id }}">▸</span><strong>{{ exam.exam_name }}</strong></div></td>
+          <td>{{ exam.start_time.replace('T',' ') }}</td>
+          <td>{{ exam.duration }} min</td>
+          <td><code class="code-pill">Closed</code></td>
+          <td><span class="badge" style="background:var(--bg3);">Completed</span></td>
+        </tr>
+        <tr id="details-{{ exam.id }}" class="exam-details-row exam-item-row" data-status="completed" style="display: none;">
+          <td colspan="5">
+            <div class="details-content">
+              <div class="details-left">
+                <div class="detail-item"><span class="detail-label">Subject</span><div class="detail-value">{{ exam.subject }}</div></div>
+                <div class="detail-item"><span class="detail-label">Description</span><div class="detail-value description-text">{{ exam.description }}</div></div>
+              </div>
+              <div class="details-right" style="display:flex; flex-direction:column; gap:8px;">
+                <a href="{{ url_for('view_exam_questions', exam_id=exam.id) }}" class="btn btn-outline btn-sm">View Questions</a>
+                <a href="{{ url_for('exam_detail_results', exam_id=exam.id) }}" class="btn btn-outline btn-sm">View Results</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/proctor.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const liveCount = {{ live_exams|length }};
+    const upcomingCount = {{ upcoming_exams|length }};
+    
+    let defaultTab = 'completed';
+    if (liveCount > 0) defaultTab = 'live';
+    else if (upcomingCount > 0) defaultTab = 'upcoming';
+
+    if (window.ExaminerDashboard) {
+      window.ExaminerDashboard.init(defaultTab);
+    }
+  });
+</script>
+{% endblock %}

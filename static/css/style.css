@@ -1,0 +1,1350 @@
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --bg2: #1a1d27;
+  --bg3: #242736;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #e8eaf0;
+  --text2: #9196a8;
+  --text3: #5c6070;
+  --accent: #6c63ff;
+  --accent2: #8b85ff;
+  --accent-dim: rgba(108,99,255,0.15);
+  --success: #22c55e;
+  --success-dim: rgba(34,197,94,0.12);
+  --danger: #ef4444;
+  --danger-dim: rgba(239,68,68,0.12);
+  --warning: #f59e0b;
+  --warning-dim: rgba(245,158,11,0.12);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+a { color: var(--accent2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Auth Pages ── */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at 60% 20%, rgba(108,99,255,0.12) 0%, transparent 60%),
+              var(--bg);
+}
+
+.auth-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow);
+}
+
+.auth-card .logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-card .logo h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.auth-card .logo span {
+  color: var(--accent2);
+}
+
+.auth-card .logo p {
+  color: var(--text2);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* ── Forms ── */
+.form-group { margin-bottom: 1.1rem; }
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+}
+
+.form-group select option { background: var(--bg3); }
+
+/* File input */
+.file-input-wrapper {
+  position: relative;
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.file-input-wrapper:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.file-input-wrapper .file-icon { font-size: 24px; margin-bottom: 6px; }
+.file-input-wrapper p { font-size: 13px; color: var(--text2); }
+.file-input-wrapper .file-name { font-size: 12px; color: var(--accent2); margin-top: 4px; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent2); text-decoration: none; color: #fff; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+.btn-outline:hover { background: var(--bg3); text-decoration: none; }
+
+.btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+.btn-success { background: var(--success-dim); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-full { width: 100%; justify-content: center; }
+
+/* ── Navbar ── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar .brand {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.navbar .brand span { color: var(--accent2); }
+
+.navbar-left { display: flex; align-items: center; gap: 1.5rem; }
+.navbar-right { display: flex; align-items: center; gap: 1rem; }
+
+.nav-link {
+  font-size: 14px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.nav-link:hover { color: var(--text); text-decoration: none; }
+
+.nav-home {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--accent-dim);
+  color: var(--accent2) !important;
+  border: 1px solid rgba(108,99,255,0.25);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.nav-home:hover { background: rgba(108,99,255,0.25) !important; }
+
+.profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 5px 12px 5px 6px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.profile-pill .username { font-size: 13px; font-weight: 500; }
+
+/* ── Layout ── */
+.page { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+.page-header { margin-bottom: 2rem; }
+.page-header h2 { font-size: 22px; font-weight: 600; }
+.page-header p { color: var(--text2); font-size: 14px; margin-top: 4px; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.card-sm {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.stat-card .label { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+.stat-card .sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ── Tables ── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--bg3);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--text2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-success { background: var(--success-dim); color: var(--success); }
+.badge-danger  { background: var(--danger-dim);  color: var(--danger); }
+.badge-warning { background: var(--warning-dim); color: var(--warning); }
+.badge-accent  { background: var(--accent-dim);  color: var(--accent2); }
+
+/* ── Flash Messages ── */
+.flash-messages { padding: 0 2rem; margin-top: 1rem; }
+.flash {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flash-success { background: var(--success-dim); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+.flash-error   { background: var(--danger-dim);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.2); }
+.flash-info    { background: var(--accent-dim);  color: var(--accent2); border: 1px solid rgba(108,99,255,0.2); }
+
+/* ── Countdown Timer ── */
+.countdown-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.countdown-digits {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent2);
+}
+
+/* ── Exam / Question Styles ── */
+.question-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.question-block .q-text {
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+.option-label:hover { background: var(--bg3); }
+.option-label input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* ── Proctoring Warning ── */
+.proctor-bar {
+  background: var(--danger-dim);
+  border-bottom: 1px solid rgba(239,68,68,0.25);
+  padding: 8px 2rem;
+  font-size: 13px;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Timer Bar ── */
+.timer-bar-wrap {
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.time-left {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.time-left.warning { color: var(--warning); }
+.time-left.danger  { color: var(--danger);  animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Report Card ── */
+.report-card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.score-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+.score-circle .num { font-size: 28px; font-weight: 700; }
+.score-circle .denom { font-size: 12px; color: var(--text2); }
+
+/* ── Upcoming exams ── */
+.exam-list { display: flex; flex-direction: column; gap: 12px; }
+.exam-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.exam-item .exam-info h4 { font-size: 15px; font-weight: 500; }
+.exam-item .exam-info p  { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text3);
+}
+.empty-state p { font-size: 14px; margin-top: 8px; }
+
+/* ── Divider ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .page { padding: 1rem; }
+  .navbar { padding: 0 1rem; }
+  .auth-card { padding: 1.75rem 1.5rem; }
+}
+
+/* ── NPTEL Interface Layout ── */
+.nptel-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  height: calc(100vh - 100px);
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.question-section {
+  padding: 2rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.palette-section {
+  background: var(--bg2);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Question Block ── */
+.nptel-q-block { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg2); }
+.q-header { background: var(--bg3); padding: 10px 20px; border-bottom: 1px solid var(--border); }
+.q-num { font-weight: 700; color: var(--accent2); }
+.q-body { padding: 2rem; }
+.q-text { font-size: 18px; margin-bottom: 2rem; }
+
+.options-grid { display: flex; flex-direction: column; gap: 12px; }
+.nptel-opt { 
+  display: flex; align-items: center; gap: 15px; padding: 12px 20px; 
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; 
+}
+.nptel-opt:hover { border-color: var(--accent); }
+.nptel-opt input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+/* ── Actions ── */
+.nptel-actions { margin-top: auto; padding-top: 2rem; display: flex; gap: 10px; border-top: 1px solid var(--border); }
+
+/* ── Palette ── */
+.palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 1rem 0; }
+.palette-item {
+  height: 40px; display: flex; align-items: center; justify-content: center;
+  border-radius: 4px 4px 0 0; cursor: pointer; font-weight: 600; font-size: 13px;
+}
+.status-not-visited { background: #eee; color: #444; }
+.status-not-answered { background: var(--danger); color: #fff; }
+.status-answered { background: var(--success); color: #fff; }
+.status-review { background: #6c63ff; color: #fff; border-radius: 50%; }
+
+.palette-legend { font-size: 12px; margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.leg-item { display: flex; align-items: center; gap: 6px; }
+.leg-item .box { width: 12px; height: 12px; border-radius: 2px; }
+.box.grey { background: #eee; } .box.red { background: var(--danger); }
+.box.green { background: var(--success); } .box.violet { background: #6c63ff; }
+
+.submit-area { margin-top: auto; padding-top: 1rem; }
+
+/* ── Examiner Dashboard Dropdown Logic ── */
+.exam-row-main:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  cursor: pointer;
+}
+
+.chevron {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  color: var(--accent2);
+  font-size: 12px;
+}
+
+.exam-details-row {
+  background: var(--bg3);
+  border-left: 3px solid var(--accent);
+}
+
+.details-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 2rem;
+  gap: 2rem;
+}
+
+.details-left {
+  flex: 1;
+}
+
+.details-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.detail-item {
+  margin-bottom: 1rem;
+}
+
+.detail-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.description-text {
+  font-weight: 400;
+  color: var(--text2);
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.code-pill {
+  background: var(--bg);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--accent2);
+  border: 1px solid var(--border);
+}
+
+/* ── Filter Card Styling ── */
+.filter-card {
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+  border: 1px solid var(--border);
+}
+
+.filter-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.active-filter {
+  border-color: var(--accent) !important;
+  background: var(--accent-dim) !important;
+  box-shadow: 0 0 15px rgba(108, 99, 255, 0.1);
+}
+
+/* ── Global Profile Dropdown ── */
+.profile-container {
+  position: relative;
+}
+
+.profile-pill {
+  display: flex;
+  align-items: center;
+  background: var(--bg2);
+  padding: 4px 12px 4px 6px;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.profile-pill:hover {
+  border-color: var(--accent);
+  background: var(--bg3);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.username-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.profile-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 120%;
+  background: var(--bg2);
+  min-width: 180px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  z-index: 2000;
+}
+
+.show-dropdown {
+  display: block !important;
+}
+
+.dropdown-header {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdown-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+.logout-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #ff5c5c;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.logout-link:hover {
+  background: rgba(255, 92, 92, 0.1);
+}
+
+/* ── Navigation Active States & Spacing ── */
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-item {
+  position: relative;
+  text-decoration: none;
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  padding: 8px 0;
+}
+
+.nav-item:hover {
+  color: var(--text);
+}
+
+/* The Active Page Effect */
+.nav-item.active {
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent); /* Adds a subtle glow */
+  border-radius: 2px;
+}
+
+.avatar-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    border: 1px solid var(--accent);
+}
+
+.dropdown-link {
+    display: block;
+    padding: 12px 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.dropdown-link:hover {
+    background: var(--bg3);
+}
+
+/* ─── NEW Direct Profile Panel (No Dropdown) ─── */
+.navbar-right {
+  display: flex;
+  align-items: flex-start; /* Align panel to top of navbar */
+}
+
+.profile-panel-direct {
+  display: flex;
+  flex-direction: column; /* Vertical alignment */
+  align-items: center;    /* Center photo and text */
+  text-align: center;
+  gap: 12px;              /* Space between photo and text box */
+  margin-top: 5px;
+}
+
+/* Photo and Camera Overlay Logic */
+.profile-photo-container {
+  position: relative;     /* Allows camera to sit over avatar */
+  width: 50px;
+  height: 50px;
+}
+
+.avatar-direct, .avatar-placeholder-direct {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+
+.avatar-placeholder-direct {
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+/* The camera layer */
+.photo-edit-layer {
+  position: absolute;
+  inset: 0;               /* Cover the whole circle */
+  background: rgba(0, 0, 0, 0.4); /* Dark shade on hover */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;             /* Hidden by default */
+  transition: opacity 0.2s;
+  text-decoration: none;
+}
+
+.profile-photo-container:hover .photo-edit-layer {
+  opacity: 1;             /* Shows on hover */
+}
+
+.camera-icon {
+  color: #fff;
+  font-size: 16px;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* User Info Styling */
+.user-info-direct {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Space between lines */
+}
+
+.username-direct {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.email-direct {
+  color: var(--text3); /* Slightly grey for contrast */
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.logout-link-direct {
+  color: #ff5c5c;        /* Red logout text */
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.logout-link-direct:hover {
+  opacity: 0.8;
+}
+
+/* ─── Vertical Profile Panel Style ─── */
+.profile-panel-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+}
+
+.profile-avatar-container {
+    position: relative;
+    width: 65px;
+    height: 65px;
+}
+
+/* Multi-color ring effect like your image */
+.avatar-ring {
+    padding: 3px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #f44336, #4caf50, #2196f3, #ffeb3b);
+    width: 100%;
+    height: 100%;
+}
+
+.avatar-main, .avatar-placeholder-main {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+}
+
+.avatar-placeholder-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+/* Camera Button */
+.camera-btn-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #222;
+    border: 1px solid #444;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.camera-btn-overlay:hover {
+    background: #333;
+}
+
+/* Text Detail Styles */
+.profile-details-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hi-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.email-subtext {
+    font-size: 12px;
+    color: var(--text3);
+}
+
+.logout-link-small {
+    color: #ff5c5c;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* ─── Interactive Profile Menu (Chrome Style) ─── */
+.profile-container-new {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-photo-clickable {
+    cursor: pointer;
+    position: relative;
+    width: 65px;
+    height: 65px;
+    transition: transform 0.2s;
+}
+
+/* Multi-color ring effect */
+.avatar-ring {
+    padding: 3px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #f44336, #4caf50, #2196f3, #ffeb3b);
+    width: 100%;
+    height: 100%;
+}
+
+.avatar-main, .avatar-placeholder-main {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--bg2);
+    border: 2px solid var(--bg);
+}
+
+/* Hidden Dropdown Menu */
+.profile-dropdown-vertical {
+    display: none; 
+    position: absolute;
+    top: 115%; /* Spacing below the photo */
+    right: 0;
+    background: #24292e; 
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 220px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+/* Class added by JS to show the menu */
+.show-menu {
+    display: block !important;
+}
+
+.profile-details-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+}
+
+.hi-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.email-subtext {
+    font-size: 12px;
+    color: #a0a0a0;
+}
+
+.dropdown-divider {
+    width: 100%;
+    border: 0;
+    border-top: 1px solid #444;
+    margin: 15px 0;
+}
+
+.logout-link-small {
+    color: #ff5c5c;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Small camera icon overlay */
+.camera-btn-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #222;
+    border: 1px solid #444;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+/* ─── Compact Navbar (Chrome Style) ─── */
+.navbar.compact-nav {
+    height: 50px;       /* Fixed height for a thin bar */
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    margin-left: 30px;
+    display: flex;
+    gap: 20px;
+    height: 100%;
+}
+
+.nav-item {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0;
+}
+
+/* Smaller profile trigger */
+.profile-photo-clickable {
+    width: 32px;        /* Matches Chrome's avatar size */
+    height: 32px;
+}
+
+.avatar-ring-small {
+    padding: 2px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4285f4, #ea4335, #fbbc05, #34a853);
+    width: 100%;
+    height: 100%;
+}
+
+.camera-btn-mini {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #202124;
+    border: 1px solid #5f6368;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 8px;
+}
+
+/* Position the menu properly under the thin bar */
+.profile-dropdown-vertical {
+    top: 45px;
+    right: 0;
+}
+
+/* ─── Profile Update Popup (Google Style) ─── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95); /* Deep dark background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.profile-modal {
+    background: #1a1a1a;
+    width: 100%;
+    max-width: 450px;
+    height: 90vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+.modal-header h3 { font-size: 18px; font-weight: 500; }
+.close-btn { text-decoration: none; color: white; font-size: 20px; }
+
+.modal-body {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.crop-container {
+    width: 100%;
+    height: 300px;
+    background: #000;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-circle, .preview-circle-text {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+}
+
+.modal-footer { padding: 20px; }
+
+.action-row {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: #222;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background 0.2s;
+}
+
+.action-row:hover { background: #333; }
+.action-row .icon { margin-right: 15px; font-size: 20px; }
+
+.save-btn-primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    background: #4285f4; /* Google Blue */
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.save-btn-primary:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+/* ─── Dropdown Profile Photo Styles ─── */
+.dropdown-avatar-container {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.dropdown-avatar-img, .dropdown-avatar-placeholder {
+    width: 80px;  /* Size of the photo in the dropdown */
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #444; /* Subtle border for visibility */
+}
+
+.dropdown-avatar-placeholder {
+    background: var(--bg3);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* Adjusting the dropdown padding to fit the new photo */
+.profile-dropdown-vertical {
+    padding-top: 25px;
+    min-width: 240px; /* Slightly wider to accommodate the photo */
+}
+
+/* ─── Fixed Scroll Issue for Profile Popup ─── */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    /* NEW: Allows the background to scroll if the modal is too tall */
+    overflow-y: auto; 
+    padding: 20px 0; /* Prevents modal from sticking to edges when zoomed */
+}
+
+.profile-modal {
+    background: #1a1a1a;
+    width: 95%; /* Responsive width */
+    max-width: 450px;
+    /* CHANGED: Removed 90vh height to let it resize naturally */
+    height: auto; 
+    max-height: calc(100vh - 40px); /* Keeps it within the viewport */
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    /* NEW: Allows the inside of the modal to scroll if needed */
+    overflow-y: auto; 
+    border: 1px solid #333;
+}
+
+/* Ensure the modal content stays centered even when small */
+.modal-body {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px; /* Ensures space for the cropper */
+}
+
+/* Student Dashboard Adjustments */
+.exam-row-main {
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.exam-row-main:hover {
+    background: var(--bg3) !important;
+}
+
+.exam-details-row {
+    background: var(--bg2);
+    border-radius: 0 0 10px 10px;
+    animation: slideDown 0.3s ease-out; /* Smooth opening effect */
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chevron {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    color: var(--accent2);
+}
+/* Exam Page Header Layout */
+.exam-header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Paste this at the bottom of your CSS file */
+.filter-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.filter-card.active {
+    border-color: var(--accent1) !important;
+    background: var(--bg3) !important;
+    transform: translateY(-2px);
+}
+
+
+
+.nptel-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+#questions-container {
+  scroll-behavior: smooth;
+}

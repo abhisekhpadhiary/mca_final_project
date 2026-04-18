@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Schedule Exam{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:620px;">
+  <div class="page-header">
+    <h2>Schedule New Exam</h2>
+    <p>Upload questions and provide exam details.</p>
+  </div>
+
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Exam Name (Folder ID)</label>
+        <input type="text" name="exam_name" placeholder="MCA_DBMS_Final" required />
+      </div>
+
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" name="subject" placeholder="e.g. Database Management Systems" required />
+      </div>
+
+      <div class="form-group">
+        <label>Exam Description (Optional)</label>
+        <textarea name="description" placeholder="Briefly explain exam rules or topics covered..." rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Start Date & Time</label>
+        <input type="datetime-local" name="start_time" required />
+      </div>
+
+      <div class="form-group">
+        <label>Duration (minutes)</label>
+        <input type="number" name="duration" min="5" max="300" required />
+      </div>
+
+      <hr class="divider" />
+
+      <div class="form-group">
+        <label>Question File (.txt)</label>
+        <input type="file" name="question_file" accept=".txt" required />
+      </div>
+
+      <div class="form-group">
+        <label>Answer File (.txt)</label>
+        <input type="file" name="answer_file" accept=".txt" required />
+      </div>
+
+      <div style="display:flex; gap:12px; margin-top:1.5rem;">
+        <a href="{{ url_for('examiner_dashboard') }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="flex:1;">Create Exam →</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+1. What does SQL stand for?
+a) Structured Query Language
+b) Simple Query Language
+c) Structured Question Language
+d) Sequential Query Language
+
+2. Which SQL command is used to retrieve data from a database?
+a) INSERT
+b) UPDATE
+c) SELECT
+d) DELETE
+
+3. What is a primary key?
+a) A key that can have NULL values
+b) A unique identifier for each record in a table
+c) A foreign key reference
+d) An index on a column
+
+4. Which of the following is a DDL command?
+a) INSERT
+b) SELECT
+c) CREATE
+d) UPDATE
+
+5. What does DBMS stand for?
+a) Data Base Management System
+b) Data Base Monitoring System
+c) Digital Base Management System
+d) Data Backup Management System

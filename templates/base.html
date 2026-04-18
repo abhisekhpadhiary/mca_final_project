@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ProctorExam{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+
+  {% block navbar %}
+  <nav class="navbar compact-nav">
+    <div class="navbar-left">
+      <a href="{{ url_for('dashboard') }}" class="brand">Proctor<span>Exam</span></a>
+      
+      {% if session.role == 'examiner' %}
+      <div class="nav-links">
+        <a href="{{ url_for('schedule_exam') }}" 
+           class="nav-item {{ 'active' if request.endpoint == 'schedule_exam' }}">
+           Schedule Exam
+        </a>
+        <a href="{{ url_for('examiner_results') }}" 
+           class="nav-item {{ 'active' if request.endpoint == 'examiner_results' }}">
+           See Results
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="navbar-right">
+      {% if session.user_id %}
+      <div class="profile-container-new">
+        
+        <div class="profile-photo-clickable" onclick="toggleProfileMenu(event)">
+          <div class="avatar-ring-small">
+            {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
+              <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="avatar-main">
+            {% else %}
+              <div class="avatar-placeholder-main">{{ session.username[0].upper() }}</div>
+            {% endif %}
+          </div>
+          
+          <a href="{{ url_for('update_profile') }}" class="camera-btn-mini" onclick="event.stopPropagation()" title="Change Photo">
+            <span>📷</span>
+          </a>
+        </div>
+
+        <div id="new-profile-menu" class="profile-dropdown-vertical">
+  <div class="profile-details-vertical">
+    
+    <div class="dropdown-avatar-wrapper">
+      <div class="dropdown-avatar-container">
+        {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
+          <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="dropdown-avatar-img">
+        {% else %}
+          <div class="dropdown-avatar-placeholder">{{ session.username[0].upper() }}</div>
+        {% endif %}
+      </div>
+      
+      <a href="{{ url_for('update_profile') }}" class="dropdown-change-btn">
+        Change
+      </a>
+    </div>
+
+    <span class="hi-text">{{ session.username }}</span>
+    <span class="email-subtext">{{ session.email }}</span>
+    
+    <hr class="dropdown-divider">
+    
+    <a href="{{ url_for('logout') }}" class="logout-link-small">Logout</a>
+  </div>
+</div>
+      </div>
+      {% else %}
+      <div style="display: flex; gap: 10px;">
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Login</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+  {% endblock %}
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/proctor.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

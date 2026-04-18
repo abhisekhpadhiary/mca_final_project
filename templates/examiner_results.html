@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Exam Results{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-header">
+    <h2>Exam Results</h2>
+    <p>Click on an exam to view individual student scores.</p>
+  </div>
+
+  {% if exams %}
+  <div class="exam-list">
+    {% for exam in exams %}
+    <div class="exam-item">
+      <div class="exam-info">
+        <h4>{{ exam.exam_name }}</h4>
+        <p>{{ exam.start_time.replace('T',' ') }} &nbsp;·&nbsp; {{ exam.duration }} min</p>
+      </div>
+      <a href="{{ url_for('exam_detail_results', exam_id=exam.id) }}" class="btn btn-outline btn-sm">
+        View Scores →
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:40px;">📊</div>
+    <p>No exams found. Schedule one first.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
