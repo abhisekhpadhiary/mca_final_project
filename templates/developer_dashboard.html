@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Developer Panel{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h2>Pending Master Admin Requests</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>College</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.college_name }}</td>
+                <td>
+                    <a href="/approve/{{ u.id }}" class="btn btn-primary btn-sm">Approve</a>
+                    <a href="/reject/{{ u.id }}" class="btn btn-outline btn-sm">Reject</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No pending requests</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
