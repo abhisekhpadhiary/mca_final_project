@@ -1,5 +1,6 @@
 import os
 import random
+import shutil
 import csv
 import string
 import base64
@@ -348,6 +349,49 @@ def create_examiner():
         flash('Email exists.', 'error')
     return redirect(url_for('admin_dashboard'))
 
+
+@app.route('/admin/change-password/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def admin_change_examiner_password(user_id):
+
+    # ✅ Prevent empty form submission
+    if request.method != 'POST':
+        return redirect(url_for('admin_dashboard'))
+
+    new_password = request.form.get('new_password', '').strip()
+    admin_password = request.form.get('admin_password', '').strip()
+
+    # ✅ If user comes without submitting form (back/refresh)
+    if not new_password or not admin_password:
+        flash("Please fill all fields.", "warning")
+        return redirect(request.referrer or url_for('admin_dashboard'))
+
+    conn = get_db()
+
+    # ✅ Verify admin password
+    admin = conn.execute(
+        'SELECT password FROM users WHERE id=?',
+        (session['user_id'],)
+    ).fetchone()
+
+    if not admin or not check_password_hash(admin['password'], admin_password):
+        conn.close()
+        flash("Incorrect admin password.", "error")
+        return redirect(request.referrer or url_for('admin_dashboard'))
+
+    # ✅ Update examiner password
+    conn.execute(
+        'UPDATE users SET password=? WHERE id=?',
+        (generate_password_hash(new_password), user_id)
+    )
+
+    conn.commit()
+    conn.close()
+
+    flash("Password updated successfully!", "success")
+    return redirect(request.referrer or url_for('admin_dashboard'))
+
 # ─── EXAMINER ROUTES ─────────────────────────────────────────
 
 @app.route('/examiner')
@@ -355,8 +399,18 @@ def create_examiner():
 @examiner_required
 def examiner_dashboard():
     conn = get_db()
-    active_exams = conn.execute('SELECT * FROM exams WHERE examiner_id = ? ORDER BY start_time DESC', (session['user_id'],)).fetchall()
-    deleted_count = 0
+
+    active_exams = conn.execute(
+        'SELECT * FROM exams WHERE examiner_id = ? ORDER BY start_time DESC',
+        (session['user_id'],)
+    ).fetchall()
+
+    # ✅ GET REAL DELETED COUNT
+    deleted_count = conn.execute(
+        'SELECT COUNT(*) FROM deleted_exams WHERE examiner_id=?',
+        (session['user_id'],)
+    ).fetchone()[0]
+
     conn.close()
     
     now = datetime.now()
@@ -508,9 +562,43 @@ def schedule_exam():
 @examiner_required
 def delete_exam(exam_id):
     conn = get_db()
-    conn.execute('DELETE FROM exams WHERE id = ? AND examiner_id = ?', (exam_id, session['user_id']))
+
+    exam = conn.execute(
+        'SELECT * FROM exams WHERE id=? AND examiner_id=?',
+        (exam_id, session['user_id'])
+    ).fetchone()
+
+    if exam:
+        # 👉 Move to deleted_exams table
+        conn.execute('''
+            INSERT INTO deleted_exams
+            (id, exam_name, subject, description, start_time, duration,
+             random_password, examiner_id, results_published, allowed_emails)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
+        ''', (
+            exam['id'],
+            exam['exam_name'],
+            exam['subject'],
+            exam['description'],
+            exam['start_time'],
+            exam['duration'],
+            exam['random_password'],
+            exam['examiner_id'],
+            exam['results_published'],
+            exam['allowed_emails']
+        ))
+
+        # 🔥 DELETE FOLDER (IMPORTANT)
+        folder_path = os.path.join(EXAM_FILES_DIR, exam['exam_name'])
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+
+        # 👉 Delete from exams table
+        conn.execute('DELETE FROM exams WHERE id=?', (exam_id,))
+
     conn.commit()
     conn.close()
+
     return redirect(url_for('examiner_dashboard'))
 
 @app.route('/examiner/deleted-records')
@@ -518,8 +606,19 @@ def delete_exam(exam_id):
 @examiner_required
 def view_deleted_exams():
     conn = get_db()
-    deleted = []
+
+    deleted = conn.execute(
+        '''
+        SELECT exam_name, start_time, duration, subject
+        FROM deleted_exams
+        WHERE examiner_id = ?
+        ORDER BY deleted_at DESC
+        ''',
+        (session['user_id'],)
+    ).fetchall()
+
     conn.close()
+
     return render_template('deleted_exams.html', exams=deleted)
 
 @app.route('/examiner/restore/<int:exam_id>', methods=['POST'])

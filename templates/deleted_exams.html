@@ -1,37 +1,43 @@
 {% extends "base.html" %}
-{% block title %}Deleted Records{% endblock %}
+{% block title %}Deleted Exams{% endblock %}
 
 {% block content %}
 <div class="page">
-  <div class="page-header">
-    <h2>Deleted Exam Records</h2>
-    <p>View history of exams that were removed from the dashboard.</p>
+
+  <div style="margin-bottom:20px;">
+    <a href="{{ url_for('examiner_dashboard') }}" class="btn btn-outline btn-sm">← Back</a>
   </div>
 
   <div class="table-wrap">
+    <h2>Deleted Exams</h2>
+
     <table>
       <thead>
         <tr>
           <th>Exam Name</th>
           <th>Start Time</th>
+          <th>Duration</th>
           <th>Subject</th>
-          <th>Status</th>
         </tr>
       </thead>
+
       <tbody>
         {% for exam in exams %}
         <tr>
-          <td><strong>{{ exam.exam_name }}</strong></td>
+          <td>{{ exam.exam_name }}</td>
           <td>{{ exam.start_time.replace('T',' ') }}</td>
+          <td>{{ exam.duration }} min</td>
           <td>{{ exam.subject }}</td>
-          <td><span class="badge" style="background:var(--danger);">Deleted</span></td>
         </tr>
         {% else %}
-        <tr><td colspan="4" style="text-align:center; padding:2rem;">No deleted records found.</td></tr>
+        <tr>
+          <td colspan="4" style="text-align:center;">No deleted exams</td>
+        </tr>
         {% endfor %}
       </tbody>
+
     </table>
   </div>
-  <a href="{{ url_for('examiner_dashboard') }}" class="btn btn-outline" style="margin-top:1rem;">← Back to Dashboard</a>
+
 </div>
 {% endblock %}

@@ -9,11 +9,11 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL,
     college_name TEXT NOT NULL,
     profile_pic TEXT DEFAULT 'default_avatar.png',
-    status TEXT DEFAULT 'active'
+    status TEXT DEFAULT 'active'         -- pending / active / rejected
 );
 
 -- =========================
--- EXAMS TABLE (UPDATED)
+-- EXAMS TABLE
 -- =========================
 CREATE TABLE IF NOT EXISTS exams (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,10 +26,27 @@ CREATE TABLE IF NOT EXISTS exams (
     examiner_id INTEGER NOT NULL,
     results_published INTEGER DEFAULT 0,
 
-    -- ✅ CSV FEATURE COLUMN
+    -- ✅ CSV FEATURE
     allowed_emails TEXT,
 
     FOREIGN KEY (examiner_id) REFERENCES users(id)
+);
+
+-- =========================
+-- DELETED EXAMS TABLE
+-- =========================
+CREATE TABLE IF NOT EXISTS deleted_exams (
+    id INTEGER PRIMARY KEY,
+    exam_name TEXT,
+    subject TEXT,
+    description TEXT,
+    start_time TEXT,
+    duration INTEGER,
+    random_password TEXT,
+    examiner_id INTEGER,
+    results_published INTEGER,
+    allowed_emails TEXT,
+    deleted_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =========================
@@ -43,6 +60,7 @@ CREATE TABLE IF NOT EXISTS results (
     total_questions INTEGER DEFAULT 0,
     submitted_at TEXT,
 
+    -- Prevent duplicate attempts
     UNIQUE(user_id, exam_id),
 
     FOREIGN KEY (user_id) REFERENCES users(id),
