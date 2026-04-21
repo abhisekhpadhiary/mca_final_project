@@ -1,66 +1,50 @@
+-- =========================
 -- USERS TABLE
+-- =========================
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role TEXT NOT NULL,                  -- student / admin / examiner / developer
     username TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL,
-    college_name TEXT,
+    college_name TEXT NOT NULL,
     profile_pic TEXT DEFAULT 'default_avatar.png',
-
-    -- ✅ NEW COLUMN (IMPORTANT)
     status TEXT DEFAULT 'active'
 );
 
-------------------------------------------------------
-
--- EXAMS TABLE
+-- =========================
+-- EXAMS TABLE (UPDATED)
+-- =========================
 CREATE TABLE IF NOT EXISTS exams (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    exam_name TEXT,
-    subject TEXT,
+    exam_name TEXT NOT NULL,
+    subject TEXT NOT NULL,
     description TEXT,
-    start_time TEXT,
-    duration INTEGER,
-    examiner_id INTEGER,
-    random_password TEXT,
-    results_published INTEGER DEFAULT 0
+    start_time TEXT NOT NULL,
+    duration INTEGER NOT NULL,
+    random_password TEXT NOT NULL,
+    examiner_id INTEGER NOT NULL,
+    results_published INTEGER DEFAULT 0,
+
+    -- ✅ CSV FEATURE COLUMN
+    allowed_emails TEXT,
+
+    FOREIGN KEY (examiner_id) REFERENCES users(id)
 );
 
-------------------------------------------------------
-
--- QUESTIONS TABLE
-CREATE TABLE IF NOT EXISTS questions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    exam_id INTEGER,
-    question_text TEXT,
-    option_a TEXT,
-    option_b TEXT,
-    option_c TEXT,
-    option_d TEXT,
-    correct_answer TEXT
-);
-
-------------------------------------------------------
-
+-- =========================
 -- RESULTS TABLE
+-- =========================
 CREATE TABLE IF NOT EXISTS results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    exam_id INTEGER,
-    score INTEGER,
-    total_questions INTEGER,
-    percentage REAL,
-    status TEXT,
-    submitted_at TEXT
-);
+    user_id INTEGER NOT NULL,
+    exam_id INTEGER NOT NULL,
+    score INTEGER DEFAULT 0,
+    total_questions INTEGER DEFAULT 0,
+    submitted_at TEXT,
 
-------------------------------------------------------
+    UNIQUE(user_id, exam_id),
 
--- DELETED EXAMS TABLE (if you use it)
-CREATE TABLE IF NOT EXISTS deleted_exams (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    exam_name TEXT,
-    subject TEXT,
-    start_time TEXT
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (exam_id) REFERENCES exams(id)
 );

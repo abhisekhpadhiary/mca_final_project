@@ -10,6 +10,7 @@
 
   <div class="card">
     <form method="POST" enctype="multipart/form-data">
+
       <div class="form-group">
         <label>Exam Name (Folder ID)</label>
         <input type="text" name="exam_name" placeholder="MCA_DBMS_Final" required />
@@ -22,7 +23,8 @@
 
       <div class="form-group">
         <label>Exam Description (Optional)</label>
-        <textarea name="description" placeholder="Briefly explain exam rules or topics covered..." rows="3"></textarea>
+        <textarea name="description" rows="3"
+          placeholder="Briefly explain exam rules or topics..."></textarea>
       </div>
 
       <div class="form-group">
@@ -47,10 +49,22 @@
         <input type="file" name="answer_file" accept=".txt" required />
       </div>
 
+      <!-- ✅ NEW CSV FEATURE -->
+      <div class="form-group">
+        <label>Allowed Student Emails (CSV - Optional)</label>
+        <input type="file" name="email_file" accept=".csv" />
+        <small style="color:var(--text3);">
+          Upload CSV file with one email per line. Only these students can join this exam.
+        </small>
+      </div>
+
       <div style="display:flex; gap:12px; margin-top:1.5rem;">
         <a href="{{ url_for('examiner_dashboard') }}" class="btn btn-outline">Cancel</a>
-        <button type="submit" class="btn btn-primary" style="flex:1;">Create Exam →</button>
+        <button type="submit" class="btn btn-primary" style="flex:1;">
+          Create Exam →
+        </button>
       </div>
+
     </form>
   </div>
 </div>

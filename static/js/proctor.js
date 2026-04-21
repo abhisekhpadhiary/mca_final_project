@@ -11,12 +11,18 @@
   let totalQs = 0;
 
   /* ─── Init ─────────────────────────────────────────────────────────── */
-  function init(eid, end, start) {
+function init(eid, end, start) {
     examId = eid;
     endTime = new Date(end);
     startTime = new Date(start);
     totalQs = document.querySelectorAll('.nptel-q-block').length;
-    
+
+    // 🚫 Block back navigation (ADD HERE)
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+      history.go(1);
+    };
+
     requestFullscreen();
     attachProctorListeners();
     
@@ -125,20 +131,23 @@
     });
   }
 
-  function triggerAutoSubmit(reason) {
-    if (submitted) return; // Guard clause to prevent infinite alert loops
-    submitted = true;
-    clearInterval(timerInterval);
-    
-    // Create a visual overlay instead of an alert() to avoid focus-loss loops
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `position:fixed;inset:0;z-index:9999;background:rgba(239,68,68,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:2rem;`;
-    overlay.innerHTML = `<div style="font-size:48px;margin-bottom:1rem;">⚠️</div><h2>Exam Auto-Submitted</h2><p>Reason: <strong>${reason}</strong></p>`;
-    document.body.appendChild(overlay);
+function triggerAutoSubmit(reason) {
+  if (submitted) return;
 
-    // Give the user 1.5 seconds to read the reason before redirecting
-    setTimeout(() => { submitAnswers(true); }, 1500);
-  }
+  submitted = true;
+  clearInterval(timerInterval);
+
+  // ✅ ADD THIS BLOCK HERE
+  document.body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#111;color:#fff;flex-direction:column;">
+      <h2>Exam Closed</h2>
+      <p>You cannot return to this exam.</p>
+    </div>
+  `;
+
+  // existing delay + submit
+  setTimeout(() => { submitAnswers(true); }, 1500);
+}
 
   function submitAnswers(autoSubmit) {
     // Ensure we mark it as submitted to stop any background timers/alerts
@@ -155,8 +164,15 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ answers, auto_submit: autoSubmit }),
-    }).then(() => { window.location.href = '/student/grades'; })
-      .catch(() => { window.location.href = '/student/grades'; });
+    }).then(() => {
+    // 🔥 Prevent going back
+    history.replaceState(null, null, '/student/grades');
+    window.location.href = '/student/grades';
+  })
+  .catch(() => {
+    history.replaceState(null, null, '/student/grades');
+    window.location.href = '/student/grades';
+  });
   }
 
   function manualSubmit() {
@@ -269,4 +285,10 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
         }
     }
+});
+// 🚫 Prevent returning via back/gesture cache
+window.addEventListener('pageshow', function (event) {
+  if (event.persisted) {
+    window.location.href = '/student/grades';
+  }
 });

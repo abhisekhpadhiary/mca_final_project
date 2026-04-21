@@ -1,5 +1,6 @@
 import os
 import random
+import csv
 import string
 import base64
 import sqlite3
@@ -444,24 +445,62 @@ def schedule_exam():
         duration = request.form.get('duration', '').strip()
         q_file = request.files.get('question_file')
         a_file = request.files.get('answer_file')
-        
+        email_file = request.files.get('email_file')  # ✅ NEW
+
         if not all([exam_name, subject, start_time, duration, q_file, a_file]):
             flash('All fields required.', 'error')
             return render_template('schedule_exam.html')
-            
+
+        # ✅ CSV READ LOGIC
+        allowed_emails = None
+        if email_file and email_file.filename != "":
+            try:
+                stream = email_file.stream.read().decode("utf-8").splitlines()
+                reader = csv.reader(stream)
+
+                emails = []
+                for row in reader:
+                    if row:
+                        emails.append(row[0].strip().lower())
+
+                if emails:
+                    allowed_emails = ",".join(emails)
+
+            except Exception:
+                flash("Invalid CSV file.", "error")
+                return render_template('schedule_exam.html')
+
         password = gen_password()
         folder = os.path.join(EXAM_FILES_DIR, exam_name)
         os.makedirs(folder, exist_ok=True)
+
         q_file.save(os.path.join(folder, 'question.txt'))
         a_file.save(os.path.join(folder, 'answer.txt'))
-        
+
         conn = get_db()
-        conn.execute('''INSERT INTO exams (exam_name, subject, description, start_time, duration, random_password, examiner_id) 
-                        VALUES (?,?,?,?,?,?,?)''', (exam_name, subject, description, start_time, int(duration), password, session['user_id']))
+
+        # ✅ FIXED QUERY (8 values)
+        conn.execute('''
+            INSERT INTO exams 
+            (exam_name, subject, description, start_time, duration, random_password, examiner_id, allowed_emails) 
+            VALUES (?,?,?,?,?,?,?,?)
+        ''', (
+            exam_name,
+            subject,
+            description,
+            start_time,
+            int(duration),
+            password,
+            session['user_id'],
+            allowed_emails
+        ))
+
         conn.commit()
         conn.close()
+
         flash('Exam scheduled!', 'success')
         return redirect(url_for('examiner_dashboard'))
+
     return render_template('schedule_exam.html')
 
 @app.route('/examiner/delete/<int:exam_id>', methods=['POST'])
@@ -531,6 +570,7 @@ def join_exam():
         password = request.form.get('password', '').strip()
         conn = get_db()
         
+        # 🔍 Fetch exam
         exam_data = conn.execute('''
             SELECT e.*, u.college_name as examiner_college 
             FROM exams e 
@@ -538,37 +578,50 @@ def join_exam():
             WHERE e.exam_name = ? AND e.random_password = ?
         ''', (exam_name, password)).fetchone()
         
+        # ❌ Invalid exam
         if not exam_data:
             conn.close()
             flash('Invalid Credentials.', 'error')
             return redirect(url_for('student_dashboard'))
-        
-        # ─── FIXED: Only block if actually submitted (submitted_at is NOT NULL) ───
-# Change this logic in the join_exam function:
+
+        # ✅ CSV RESTRICTION CHECK (NEW FEATURE)
+        if exam_data['allowed_emails']:
+            allowed_list = [e.strip().lower() for e in exam_data['allowed_emails'].split(",")]
+
+            if session.get('email').lower() not in allowed_list:
+                conn.close()
+                flash("Access denied for this exam.", "error")
+                return redirect(url_for('student_dashboard'))
+
+        # 🔐 Prevent re-attempt if already submitted
         existing_result = conn.execute(
             'SELECT total_questions FROM results WHERE user_id = ? AND exam_id = ?', 
-                (session['user_id'], exam_data['id'])
-            ).fetchone()
+            (session['user_id'], exam_data['id'])
+        ).fetchone()
 
-# ONLY block them if they have actually submitted questions
         if existing_result and existing_result['total_questions'] > 0:
             conn.close()
             flash('Security Alert: You have already submitted this exam.', 'error')
-            return redirect(url_for('student_dashboard'))        
+            return redirect(url_for('student_dashboard'))
+
+        # 🏫 College restriction
         if session.get('college') != exam_data['examiner_college']:
             conn.close()
             flash(f"Exam restricted to {exam_data['examiner_college']} students.", 'error')
             return redirect(url_for('student_dashboard'))
             
-        # Create initial entry only if it doesn't exist
+        # 📝 Create result entry if not exists
         try:
-            conn.execute('INSERT INTO results (user_id, exam_id, score, total_questions) VALUES (?, ?, ?, ?)', 
-                         (session['user_id'], exam_data['id'], 0, 0))
+            conn.execute(
+                'INSERT INTO results (user_id, exam_id, score, total_questions) VALUES (?, ?, ?, ?)', 
+                (session['user_id'], exam_data['id'], 0, 0)
+            )
             conn.commit()
         except sqlite3.IntegrityError:
-            pass  # Record already exists (in_progress)
+            pass  # already exists
 
         conn.close()
+
         return redirect(url_for('take_exam', exam_id=exam_data['id']))
     
     return render_template('join_exam.html')
