@@ -143,18 +143,6 @@ def login():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
 
-        # 🔐 Developer Login (SPECIAL ACCESS)
-        if email == "abhisekhpadhiary@gmail.com" and password == "123456":
-            session.update({
-                'user_id': 0,
-                'username': "Developer",
-                'email': email,
-                'role': "developer",
-                'profile_pic': 'default_avatar.png',
-                'college': "ALL"
-            })
-            return redirect(url_for('developer_dashboard'))
-
         conn = get_db()
         user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
         conn.close()

@@ -1,36 +1,90 @@
-{% extends "base.html" %}
-{% block title %}Developer Panel{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Developer Panel</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0b1220;
+            color: white;
+            padding: 30px;
+        }
 
-{% block content %}
-<div class="page">
-    <h2>Pending Master Admin Requests</h2>
+        h2 {
+            margin-bottom: 20px;
+        }
 
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>College</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for u in users %}
-            <tr>
-                <td>{{ u.username }}</td>
-                <td>{{ u.email }}</td>
-                <td>{{ u.college_name }}</td>
-                <td>
-                    <a href="/approve/{{ u.id }}" class="btn btn-primary btn-sm">Approve</a>
-                    <a href="/reject/{{ u.id }}" class="btn btn-outline btn-sm">Reject</a>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="4">No pending requests</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #111827;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #1f2937;
+        }
+
+        tr:nth-child(even) {
+            background: #0f172a;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .approve {
+            background: #22c55e;
+            color: white;
+        }
+
+        .reject {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Pending Master Admin Requests</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>College</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.college_name }}</td>
+            <td>
+                <a href="/approve/{{ u.id }}" class="btn approve">Approve</a>
+                <a href="/reject/{{ u.id }}" class="btn reject">Reject</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">No pending requests</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>
