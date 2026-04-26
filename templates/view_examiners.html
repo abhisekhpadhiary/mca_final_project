@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}All Examiners{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div style="margin-top:20px;">
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+      ← Back
+    </a>
+  </div>
+  <div class="page-header">
+    <h2>All Examiners</h2>
+    <p>List of all registered examiners</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>College</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for teacher in examiners %}
+        <tr>
+          <td>{{ teacher.username }}</td>
+          <td>{{ teacher.email }}</td>
+          <td>{{ teacher.college_name }}</td>
+          <td>
+            <a href="{{ url_for('verify_admin_password', user_id=teacher.id) }}" class="btn btn-outline btn-sm">
+                View Profile
+            </a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" style="text-align:center;">
+            No examiners found
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+
+  
+
+</div>
+{% endblock %}

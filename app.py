@@ -289,6 +289,36 @@ def dashboard():
     if session['role'] == 'examiner': return redirect(url_for('examiner_dashboard'))
     return redirect(url_for('student_dashboard'))
 
+
+@app.route('/admin/teacher/<int:user_id>')
+@login_required
+@admin_required
+def admin_view_teacher(user_id):
+    conn = get_db()
+
+    teacher = conn.execute(
+        "SELECT * FROM users WHERE id=? AND role='examiner'",
+        (user_id,)
+    ).fetchone()
+
+    if not teacher:
+        flash("Examiner not found", "error")
+        return redirect(url_for('admin_dashboard'))
+
+    exams = conn.execute(
+        "SELECT * FROM exams WHERE examiner_id=?",
+        (user_id,)
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        'admin_teacher_view.html',
+        teacher=teacher,
+        exams=exams
+    )
+
+
 # ─── MASTER ADMIN ROUTES ─────────────────────────────────────
 
 @app.route('/admin/dashboard')
@@ -296,17 +326,35 @@ def dashboard():
 @admin_required
 def admin_dashboard():
     conn = get_db()
-    teachers = conn.execute('''SELECT id, username, email, college_name,
-                               (SELECT COUNT(*) FROM exams WHERE examiner_id = users.id) as exam_count
-                               FROM users WHERE role = 'examiner' AND college_name = ?''', (session['college'],)).fetchall()
 
-    global_stats = conn.execute('''SELECT e.id, e.exam_name, u.username as teacher,
-                                   (SELECT COUNT(*) FROM results WHERE exam_id = e.id) as student_count,
-                                   (SELECT COUNT(*) FROM results WHERE exam_id = e.id AND (CAST(score AS FLOAT)/NULLIF(total_questions, 0)) >= 0.5) as pass_count
-                                   FROM exams e JOIN users u ON e.examiner_id = u.id
-                                   WHERE u.college_name = ?''', (session['college'],)).fetchall()
+    # ✅ FIX: remove college filter
+    teachers = conn.execute('''
+    SELECT u.id, u.username, u.email, u.college_name,
+           COUNT(e.id) as exam_count
+    FROM users u
+    LEFT JOIN exams e ON u.id = e.examiner_id
+    WHERE u.role = 'examiner'
+    GROUP BY u.id
+''').fetchall()
+
+    # ✅ Optional stats (safe)
+    students_count = conn.execute(
+    "SELECT COUNT(*) FROM users WHERE role='student' AND college_name=?",
+    (session['college'],)
+).fetchone()[0]
+
+    pending_admins = conn.execute(
+        "SELECT COUNT(*) FROM users WHERE role='admin' AND status='pending'"
+    ).fetchone()[0]
+
     conn.close()
-    return render_template('admin_dashboard.html', teachers=teachers, stats=global_stats)
+
+    return render_template(
+        'admin_dashboard.html',
+        teachers=teachers,
+        students_count=students_count,
+        pending_admins=pending_admins
+    )
 
 @app.route('/admin/examiner/<int:teacher_id>/details')
 @login_required
@@ -890,6 +938,124 @@ def submit_exam(exam_id):
     conn.close()
 
     return jsonify({'success': True})
+
+
+@app.route('/admin/examiners')
+@login_required
+@admin_required
+def view_examiners():
+    conn = get_db()
+    examiners = conn.execute(
+        "SELECT * FROM users WHERE role='examiner'"
+    ).fetchall()
+    conn.close()
+
+    return render_template('view_examiners.html', examiners=examiners)
+
+@app.route('/admin/delete-students', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_students_csv():
+    if request.method == 'POST':
+        file = request.files.get('csv_file')
+
+        if not file:
+            flash("No file uploaded", "error")
+            return redirect(request.url)
+
+        conn = get_db()
+        deleted_count = 0
+        skipped_count = 0
+
+        # ✅ Get admin college
+        admin_college = session.get('college')
+
+        try:
+            content = file.read().decode('utf-8').splitlines()
+
+            for line in content:
+                email = line.strip().lower()
+
+                if not email:
+                    continue
+
+                user = conn.execute(
+                    "SELECT id, role, college_name FROM users WHERE email=?",
+                    (email,)
+                ).fetchone()
+
+                # ✅ Only delete if:
+                # 1. user exists
+                # 2. role is student
+                # 3. same college
+                if user and user['role'] == 'student' and user['college_name'] == admin_college:
+                    conn.execute(
+                        "DELETE FROM users WHERE id=?",
+                        (user['id'],)
+                    )
+                    deleted_count += 1
+                else:
+                    skipped_count += 1
+
+            conn.commit()
+
+            flash(f"{deleted_count} students deleted successfully.", "success")
+
+            if skipped_count > 0:
+                flash(f"{skipped_count} entries skipped (not student / different college).", "warning")
+
+        except Exception as e:
+            flash("Error processing CSV file.", "error")
+
+        finally:
+            conn.close()
+
+    return render_template('delete_students.html')
+
+
+@app.route('/admin/verify/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def verify_admin_password(user_id):
+    if request.method == 'POST':
+        entered_password = request.form['password']
+
+        conn = get_db()
+        admin = conn.execute(
+            "SELECT * FROM users WHERE id=?",
+            (session['user_id'],)
+        ).fetchone()
+
+        # 🔐 check password (plain or hashed based on your system)
+        if admin and check_password_hash(admin['password'], entered_password):
+            return redirect(url_for('admin_view_teacher', user_id=user_id))
+        else:
+            flash("Incorrect admin password", "error")
+
+        conn.close()
+
+    return render_template('verify_admin_password.html', user_id=user_id)
+
+
+
+@app.route('/admin/students')
+@login_required
+@admin_required
+def view_students():
+    conn = get_db()
+
+    # ✅ get admin college
+    college = session.get('college')
+
+    # ✅ only students of same college
+    students = conn.execute(
+        "SELECT username, email, college_name FROM users WHERE role='student' AND college_name=?",
+        (college,)
+    ).fetchall()
+
+    conn.close()
+
+    return render_template('view_students.html', students=students)
 
 # ─── COMMON ROUTES ───────────────────────────────────────────
 

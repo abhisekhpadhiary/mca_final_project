@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Delete Students{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:500px;">
+
+  <div class="page-header">
+    <h2>Delete Students (CSV)</h2>
+    <p>Upload a CSV file containing student emails (one per line).</p>
+  </div>
+
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data">
+
+      <div class="form-group">
+        <label>Select CSV File</label>
+        <input type="file" name="csv_file" accept=".csv" required>
+      </div>
+
+      <div style="margin-top:20px;">
+        <button type="submit" class="btn btn-danger">Delete Students</button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}
