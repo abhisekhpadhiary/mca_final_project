@@ -4,19 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ProctorExam{% endblock %}</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- ✅ TOAST CSS -->
   <style>
+    /* ================= TOAST ================= */
     .toast-container {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 9999;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      align-items: center;
     }
 
     .toast {
@@ -24,127 +27,217 @@
       padding: 12px 18px;
       border-radius: 10px;
       font-size: 14px;
-      font-weight: 500;
       color: #fff;
       box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-      animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards;
+      animation: fadeIn 0.3s ease, fadeOut 0.5s ease 3s forwards;
     }
 
     .toast.success { background: #22c55e; }
     .toast.error { background: #ef4444; }
     .toast.warning { background: #f59e0b; }
 
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeOut {
-      to { opacity: 0; transform: translateX(100%); }
+      to { opacity: 0; transform: translateY(20px); }
+    }
+
+    /* ================= PROFILE ================= */
+
+    .profile-dropdown-vertical {
+      position: absolute;
+      top: 60px;
+      right: 0;
+      width: 280px;
+      background: linear-gradient(145deg, #1e1e2f, #151524);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .profile-dropdown-vertical.active {
+      display: block;
+    }
+
+    .fancy-profile {
+      text-align: center;
+    }
+
+    /* ✅ FIXED AVATAR (NO OVAL ISSUE) */
+    .avatar-glow {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 15px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(108,99,255,0.4);
+    }
+
+    .dropdown-avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .dropdown-avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #6c63ff, #4f46e5);
+    }
+
+    .fancy-profile h3 {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+
+    .email-text {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin: 15px 0;
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fancy-btn {
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: 0.3s;
+      color: white;
+      text-align: center;
+    }
+
+    .change-btn {
+      background: linear-gradient(135deg, #6c63ff, #4f46e5);
+    }
+
+    .change-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(108,99,255,0.5);
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #ff4d4d, #dc2626);
+    }
+
+    .logout-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(255,77,77,0.5);
     }
   </style>
 </head>
 
 <body class="dark-theme">
 
-  {% block navbar %}
-  <nav class="navbar compact-nav">
-    <div class="navbar-left">
-      <a href="{{ url_for('dashboard') }}" class="brand">Proctor<span>Exam</span></a>
-      
-      {% if session.role == 'examiner' %}
-      <div class="nav-links">
-        <a href="{{ url_for('schedule_exam') }}" 
-           class="nav-item {{ 'active' if request.endpoint == 'schedule_exam' }}">
-           Schedule Exam
-        </a>
-        <a href="{{ url_for('examiner_results') }}" 
-           class="nav-item {{ 'active' if request.endpoint == 'examiner_results' }}">
-           See Results
-        </a>
-      </div>
-      {% endif %}
-    </div>
-    
-    <div class="navbar-right">
-      {% if session.user_id %}
-      <div class="profile-container-new">
-        
-        <div class="profile-photo-clickable" onclick="toggleProfileMenu(event)">
-          <div class="avatar-ring-small">
-            {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
-              <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="avatar-main">
-            {% else %}
-              <div class="avatar-placeholder-main">{{ session.username[0].upper() }}</div>
-            {% endif %}
-          </div>
-          
-          <a href="{{ url_for('update_profile') }}" class="camera-btn-mini" onclick="event.stopPropagation()" title="Change Photo">
-            <span>📷</span>
-          </a>
-        </div>
-
-        <div id="new-profile-menu" class="profile-dropdown-vertical">
-          <div class="profile-details-vertical">
-            
-            <div class="dropdown-avatar-wrapper">
-              <div class="dropdown-avatar-container">
-                {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
-                  <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="dropdown-avatar-img">
-                {% else %}
-                  <div class="dropdown-avatar-placeholder">{{ session.username[0].upper() }}</div>
-                {% endif %}
-              </div>
-              
-              <a href="{{ url_for('update_profile') }}" class="dropdown-change-btn">
-                Change
-              </a>
-            </div>
-
-            <span class="hi-text">{{ session.username }}</span>
-            <span class="email-subtext">{{ session.email }}</span>
-            
-            <hr class="dropdown-divider">
-            
-            <a href="{{ url_for('logout') }}" class="logout-link-small">Logout</a>
-          </div>
-        </div>
-
-      </div>
-      {% else %}
-      <div style="display: flex; gap: 10px;">
-        <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Login</a>
-        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
-      </div>
-      {% endif %}
-    </div>
-  </nav>
-  {% endblock %}
-
-  <!-- ✅ NEW TOAST NOTIFICATIONS -->
-  <div class="toast-container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="toast {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+{% block navbar %}
+<nav class="navbar compact-nav">
+  <div class="navbar-left">
+    <a href="{{ url_for('dashboard') }}" class="brand">Proctor<span>Exam</span></a>
   </div>
 
-  <main class="container">
-    {% block content %}{% endblock %}
-  </main>
+  <div class="navbar-right">
+    {% if session.user_id %}
+    <div class="profile-container-new">
 
-  <script src="{{ url_for('static', filename='js/proctor.js') }}"></script>
+      <!-- NAV AVATAR -->
+      <div class="profile-photo-clickable" onclick="toggleProfileMenu(event)">
+        {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
+          <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="avatar-main">
+        {% else %}
+          <div class="avatar-placeholder-main">{{ session.username[0].upper() }}</div>
+        {% endif %}
+      </div>
 
-  <!-- ✅ AUTO REMOVE TOAST -->
-  <script>
-    setTimeout(() => {
-      document.querySelectorAll('.toast').forEach(t => t.remove());
-    }, 4000);
-  </script>
+      <!-- POPUP -->
+      <div id="new-profile-menu" class="profile-dropdown-vertical">
+        <div class="fancy-profile">
 
-  {% block scripts %}{% endblock %}
+          <div class="avatar-glow">
+            {% if session.profile_pic and session.profile_pic != 'default_avatar.png' %}
+              <img src="{{ url_for('static', filename='profile_pics/' + session.profile_pic) }}" class="dropdown-avatar-img">
+            {% else %}
+              <div class="dropdown-avatar-placeholder">
+                {{ session.username[0].upper() }}
+              </div>
+            {% endif %}
+          </div>
+
+          <h3>👋 {{ session.username }}</h3>
+          <p class="email-text">📧 {{ session.email }}</p>
+
+          <hr>
+
+          <div class="profile-actions">
+            <a href="{{ url_for('update_profile') }}" class="fancy-btn change-btn">
+              ⚙️ Change Profile
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="fancy-btn logout-btn">
+              🚪 Logout
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    {% endif %}
+  </div>
+</nav>
+{% endblock %}
+
+<!-- TOAST -->
+<div class="toast-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="toast {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<script>
+function toggleProfileMenu(e) {
+  e.stopPropagation();
+  document.getElementById("new-profile-menu").classList.toggle("active");
+}
+
+document.addEventListener("click", function () {
+  document.getElementById("new-profile-menu").classList.remove("active");
+});
+</script>
+
+<script src="{{ url_for('static', filename='js/proctor.js') }}"></script>
+
 </body>
 </html>
